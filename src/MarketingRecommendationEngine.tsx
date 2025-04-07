@@ -529,24 +529,6 @@ const MarketingRecommendationEngine = () => {
     setRecommendation(result);
     setSubmitted(true);
   };
-  
-  // Helper function to move specific items to the front of an array
-  const moveToFront = (array, itemIds) => {
-    const copy = [...array];
-    const priorityItems = [];
-    
-    // Remove priority items and put in priorityItems array
-    for (const id of itemIds) {
-      const index = copy.findIndex(item => item.id === id);
-      if (index !== -1) {
-        priorityItems.push(copy[index]);
-        copy.splice(index, 1);
-      }
-    }
-    
-    // Return priority items followed by remaining items
-    return [...priorityItems, ...copy];
-  };
 
   const resetForm = () => {
     setBusinessType('');
