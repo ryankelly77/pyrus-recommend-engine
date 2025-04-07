@@ -1,17 +1,76 @@
 import React, { useState } from 'react';
 
-const MarketingRecommendationEngine = () => {
-  // Basic state
-  const [businessType, setBusinessType] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [budget, setBudget] = useState('');
-  const [goals, setGoals] = useState([]);
-  const [onlinePresence, setOnlinePresence] = useState('');
-  const [timeline, setTimeline] = useState('');
-  const [locations, setLocations] = useState(1);
-  const [submitted, setSubmitted] = useState(false);
-  const [recommendation, setRecommendation] = useState(null);
+type Service = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  requires?: string[];
+  minAdSpend?: number;
+  adjustedPrice?: number;
+};
 
+type Package = {
+  name: string;
+  price: number;
+  minAdSpend: number;
+  services: string[];
+  description: string;
+};
+
+type Recommendation =
+  | {
+      type: 'package';
+      package: {
+        name: string;
+        price: number;
+        description: string;
+        services: {
+          id: string;
+          name: string;
+          description: string;
+        }[];
+      };
+      adSpend: number;
+      additionalServices: {
+        id: string;
+        name: string;
+        price: number;
+        description: string;
+      }[];
+      totalCost: number;
+      needsWebsite: boolean;
+      prioritizeAds: boolean;
+      prioritizeSEO: boolean;
+    }
+  | {
+      type: 'services';
+      services: {
+        id: string;
+        name: string;
+        price: number;
+        description: string;
+        minAdSpend?: number;
+      }[];
+      adSpend: number;
+      totalCost: number;
+      needsWebsite: boolean;
+      prioritizeAds: boolean;
+      prioritizeSEO: boolean;
+    };
+
+const MarketingRecommendationEngine = () => {
+    const [businessType, setBusinessType] = useState('');
+    const [industry, setIndustry] = useState('');
+    const [budget, setBudget] = useState('');
+    const [goals, setGoals] = useState<string[]>([]);
+    const [onlinePresence, setOnlinePresence] = useState('');
+    const [timeline, setTimeline] = useState('');
+    const [locations, setLocations] = useState<number>(1);
+    const [submitted, setSubmitted] = useState(false);
+    const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+
+      
   // Available services
   const services = {
     crmLeadTracking: {
@@ -119,22 +178,37 @@ const MarketingRecommendationEngine = () => {
     }
   };
 
-  const handleGoalChange = (e) => {
+  const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
-    if (checked) {
-      setGoals([...goals, value]);
-    } else {
-      setGoals(goals.filter(item => item !== value));
-    }
+    setGoals((prevGoals) =>
+      checked ? [...prevGoals, value] : prevGoals.filter((item) => item !== value)
+    );
   };
-
-  const generateRecommendation = () => {
-    const monthlyBudget = parseFloat(budget);
-    
-    if (isNaN(monthlyBudget) || monthlyBudget <= 0) {
-      alert("Please enter a valid budget amount");
-      return;
+  
+  const moveToFront = <T extends { id: string }>(
+    array: T[],
+    itemIds: string[]
+  ): T[] => {
+    const copy = [...array];
+    const priorityItems: T[] = [];
+  
+    for (const id of itemIds) {
+      const index = copy.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        priorityItems.push(copy[index]);
+        copy.splice(index, 1);
+      }
     }
+  
+    return [...priorityItems, ...copy];
+  };
+  
+  const generateRecommendation = (): void => {
+  const monthlyBudget = parseFloat(budget);
+  if (isNaN(monthlyBudget) || monthlyBudget <= 0) {
+    alert('Please enter a valid budget amount');
+    return;
+  }
     
     // Calculate location-adjusted services prices
     const locationsCount = parseInt(locations);
