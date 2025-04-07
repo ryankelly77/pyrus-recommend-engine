@@ -59,102 +59,114 @@ type Recommendation =
       prioritizeSEO: boolean;
     };
 
-const MarketingRecommendationEngine = () => {
-    const [businessType, setBusinessType] = useState('');
-    const [industry, setIndustry] = useState('');
-    const [budget, setBudget] = useState('');
-    const [goals, setGoals] = useState<string[]>([]);
-    const [onlinePresence, setOnlinePresence] = useState('');
-    const [timeline, setTimeline] = useState('');
-    const [locations, setLocations] = useState<number>(1);
-    const [submitted, setSubmitted] = useState(false);
-    const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+const MarketingRecommendationEngine: React.FC = () => {
+  const [businessType, setBusinessType] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [budget, setBudget] = useState('');
+  const [goals, setGoals] = useState<string[]>([]);
+  const [onlinePresence, setOnlinePresence] = useState('');
+  const [timeline, setTimeline] = useState('');
+  const [locations, setLocations] = useState<number>(1);
+  const [submitted, setSubmitted] = useState(false);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
 
-      
-  // Available services
-  const services = {
+  const services: Record<string, Service> = {
     crmLeadTracking: {
+      id: 'crmLeadTracking',
       name: "CRM + Lead Tracking",
       price: 99,
       description: "Track and manage leads and customer relationships"
     },
     analytics: {
+      id: 'analytics',
       name: "Google Analytics (GA4) Tracking",
       price: 99,
       description: "Track website performance and user behavior"
     },
     googleBusinessProfile: {
+      id: 'googleBusinessProfile',
       name: "Google Business Profile Optimization",
       price: 199,
       description: "Optimize your Google Business listing for better local visibility"
     },
     localServiceAds: {
+      id: 'localServiceAds',
       name: "Google Local Service Ads",
       price: 149,
       minAdSpend: 500,
       description: "Targeted local ads with Google's guaranteed badge"
     },
     searchAds: {
+      id: 'searchAds',
       name: "Google Search Ads",
       price: 599,
       minAdSpend: 1000,
       description: "Targeted ads on Google search results (1 campaign, 1 ad group)"
     },
     appointmentSetting: {
+      id: 'appointmentSetting',
       name: "Appointment Setting",
       price: 99,
       description: "Tools to allow customers to book appointments directly"
     },
     webChat: {
+      id: 'webChat',
       name: "Web Chat",
       price: 99,
       description: "Live chat functionality for your website"
     },
     aiChat: {
+      id: 'aiChat',
       name: "Conversational AI Chat",
       price: 99,
       requires: ["webChat"],
       description: "AI-powered chat for your website. Requires Web Chat"
     },
     emailSms: {
+      id: 'emailSms',
       name: "Email & SMS Campaigns",
       price: 99,
       description: "Email and text message marketing campaigns"
     },
     reviewManagement: {
+      id: 'reviewManagement',
       name: "Review Management",
       price: 99,
       description: "Manage and respond to customer reviews"
     },
     seedlingSeo: {
+      id: 'seedlingSeo',
       name: "Seedling SEO",
       price: 599,
       description: "Basic SEO for 4-5 key pages, 15-20 keywords"
     },
     harvestSeo: {
+      id: 'harvestSeo',
       name: "Harvest SEO",
       price: 1799,
       description: "Comprehensive SEO for 15-20 pages, 80+ keywords, content and link building"
     },
     contentMarketing: {
+      id: 'contentMarketing',
       name: "Content Marketing",
       price: 99,
       description: "1000-word article providing valuable content for your website and audience"
     },
     basicHosting: {
+      id: 'basicHosting',
       name: "Basic WordPress Hosting and Maintenance",
       price: 49,
       description: "Essential hosting and maintenance for WordPress sites"
     },
     advancedHosting: {
+      id: 'advancedHosting',
       name: "Advanced WordPress Hosting and Maintenance",
       price: 99,
       description: "Premium hosting with malware protection and staging site"
     }
   };
 
-  // Available packages
-  const packages = {
+  const packages: Record<string, Package> = {
     seed: {
       name: "Seed Plan",
       price: 559,
@@ -184,14 +196,14 @@ const MarketingRecommendationEngine = () => {
       checked ? [...prevGoals, value] : prevGoals.filter((item) => item !== value)
     );
   };
-  
+
   const moveToFront = <T extends { id: string }>(
     array: T[],
     itemIds: string[]
   ): T[] => {
     const copy = [...array];
     const priorityItems: T[] = [];
-  
+
     for (const id of itemIds) {
       const index = copy.findIndex((item) => item.id === id);
       if (index !== -1) {
@@ -199,7 +211,7 @@ const MarketingRecommendationEngine = () => {
         copy.splice(index, 1);
       }
     }
-  
+
     return [...priorityItems, ...copy];
   };
   
@@ -212,24 +224,28 @@ const MarketingRecommendationEngine = () => {
     
     // Calculate location-adjusted services prices
     const locationsCount = locations;
-    const adjustedServices = Object.keys(services).reduce((acc, key) => {
-      let price = services[key].price;
-      
-      // If it's Google Business Profile, multiply by locations
-      if (key === 'googleBusinessProfile' && locationsCount > 1) {
-        price = price * locationsCount;
-      }
-      
-      acc[key] = {
-        ...services[key],
-        adjustedPrice: price
-      };
-      return acc;
-    }, {});
+  const adjustedServices = (Object.keys(services) as (keyof typeof services)[]).reduce(
+      (acc, key) => {
+        let price = services[key].price;
+    
+        if (key === 'googleBusinessProfile' && locationsCount > 1) {
+          price = price * locationsCount;
+        }
+    
+        acc[key] = {
+          ...services[key],
+          adjustedPrice: price,
+        };
+    
+        return acc;
+      },
+      {} as Record<keyof typeof services, Service & { adjustedPrice: number }>
+    );
+
     
     // Check which packages are within budget
-    const availablePackages = Object.keys(packages).filter(key => {
-      const pkg = packages[key];
+    const availablePackages = (Object.keys(packages) as (keyof typeof packages)[]).filter(key => {
+    const pkg = packages[key as keyof typeof packages];
       // Calculate package price with location adjustment
       let packagePrice = pkg.price;
       
@@ -240,7 +256,7 @@ const MarketingRecommendationEngine = () => {
       return (packagePrice + pkg.minAdSpend) <= monthlyBudget;
     });
     
-    let result = {};
+    let result: Recommendation;
     
     // Flag for whether we need a new website
     const needsWebsite = onlinePresence === 'none';
@@ -268,13 +284,13 @@ const MarketingRecommendationEngine = () => {
       let remainingBudget = monthlyBudget - (packagePrice + adSpend);
       
       // Determine additional services
-      const additionalServices = [];
+      const additionalServices: Service[] = [];
       const packageServiceIds = bestPackage.services;
       
       // Prioritize services based on business type and goals
-      let servicePriorities = Object.keys(services)
-        .filter(key => !packageServiceIds.includes(key))
-        .map(key => ({ id: key, ...services[key] }));
+let servicePriorities = Object.keys(services)
+      .filter(key => !packageServiceIds.includes(key))
+      .map(key => services[key as keyof typeof services]);
       
       // Filter out hosting services if a new website is not needed
       if (!needsWebsite) {
@@ -358,12 +374,18 @@ const MarketingRecommendationEngine = () => {
       };
     } else {
       // No package fits, recommend individual services
-      const recommendedServices = [];
-      let adSpendServices = [];
+      const recommendedServices: {
+        id: string;
+        name: string;
+        price: number;
+        description: string;
+        minAdSpend?: number;
+      }[] = [];
+      let adSpendServices: Service[] = [];
       
       // Prioritize services based on business type and goals
       let servicePriorities = Object.keys(services)
-        .map(key => ({ id: key, ...services[key] }));
+        .map(key => services[key]);
       
       // Filter out hosting services if a new website is not needed
       if (!needsWebsite) {
@@ -416,7 +438,7 @@ const MarketingRecommendationEngine = () => {
           const servicePrice = adjustedServices[service.id].adjustedPrice;
           const adSpendNeeded = service.minAdSpend;
           
-          if (servicePrice + adSpendNeeded <= remainingBudget) {
+          if (adSpendNeeded !== undefined && servicePrice + adSpendNeeded <= remainingBudget) {
             recommendedServices.push({
               id: service.id,
               name: service.name,
@@ -424,11 +446,11 @@ const MarketingRecommendationEngine = () => {
               description: service.description,
               minAdSpend: adSpendNeeded
             });
-            
-            remainingBudget -= servicePrice;
+          
+            remainingBudget -= servicePrice + adSpendNeeded;
             baseAdSpend += adSpendNeeded;
-            remainingBudget -= adSpendNeeded;
           }
+
           
           // Stop if we can't afford more ad-based services
           if (remainingBudget < 100) break;
@@ -541,6 +563,10 @@ const MarketingRecommendationEngine = () => {
     setSubmitted(false);
     setRecommendation(null);
   };
+  
+  const parseNumber = (value: string | number): number => {
+    return typeof value === 'string' ? parseInt(value, 10) : value;
+  };
 
   return (
     <div className="flex flex-col items-center p-6 max-w-4xl mx-auto">
@@ -608,7 +634,7 @@ const MarketingRecommendationEngine = () => {
             </label>
             <select 
               value={locations} 
-              onChange={(e) => setLocations(e.target.value)}
+              onChange={(e) => setLocations(parseInt(e.target.value, 10))}
               className="w-full p-2 border border-gray-300 rounded"
             >
               <option value="1">1 location</option>
@@ -754,7 +780,7 @@ const MarketingRecommendationEngine = () => {
                       }
                     </p>
                     
-                    {businessType === 'local' && recommendation.package.services.includes('googleBusinessProfile') &&
+                    {businessType === 'local' && recommendation.package.services.some(s => s.id === 'googleBusinessProfile') &&
                       <p className="text-gray-700 mb-2">
                         Google Business Profile optimization is crucial for your local business to appear in local searches and Google Maps.
                       </p>
