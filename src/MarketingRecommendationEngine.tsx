@@ -211,7 +211,7 @@ const MarketingRecommendationEngine = () => {
   }
     
     // Calculate location-adjusted services prices
-    const locationsCount = parseInt(locations);
+    const locationsCount = locations;
     const adjustedServices = Object.keys(services).reduce((acc, key) => {
       let price = services[key].price;
       
