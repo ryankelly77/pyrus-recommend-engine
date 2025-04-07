@@ -570,7 +570,27 @@ let servicePriorities = Object.keys(services)
 
   return (
     <div className="flex flex-col items-center p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-center">Digital Marketing Services Recommendation Tool</h1>
+    <h1 className="text-3xl font-bold mb-4 text-center">Instant Marketing Plan Generator: Digital Marketing Simplified</h1>
+    <p className="text-center text-gray-600 mb-6 max-w-3xl">
+      Find exactly what your business needs in minutes. Our intelligent tool creates a customized digital marketing plan tailored to your specific situation—no marketing expertise required.
+    </p>
+    
+    <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 mb-8 max-w-3xl">
+      <p className="mb-4">
+        Answer a few simple questions about your business, and our recommendation engine will analyze your unique needs to create a personalized marketing strategy with specific service recommendations that fit your budget. Designed specifically for business owners who aren't sure which digital marketing services they need, this tool eliminates the guesswork and puts you on the path to growth.
+      </p>
+      <p className="mb-3">In just a few clicks, you'll receive:</p>
+      <ul className="list-disc pl-6 mb-4 space-y-1">
+        <li>A clear, actionable marketing strategy tailored to your business type and industry</li>
+        <li>Specific service recommendations prioritized by what will drive the best results</li>
+        <li>Smart budget allocation to maximize your marketing investment</li>
+        <li>Industry-specific tactics proven to work for businesses like yours</li>
+        <li>A step-by-step implementation timeline to help you execute effectively</li>
+      </ul>
+      <p className="font-medium">
+        Stop wasting time and money on marketing services that don't fit your business. Get your personalized digital marketing plan today.
+      </p>
+    </div>
       
       {!submitted ? (
         <div className="w-full bg-white p-6 rounded-lg shadow-md">
